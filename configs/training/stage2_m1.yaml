@@ -1,0 +1,73 @@
+# Prospective Forcing Stage 2: M1 K=2 controller/verifier post-training.
+generator_ckpt: ${oc.env:PF_STAGE1_CHECKPOINT,checkpoints/stage1/prospective_forcing_stage1.pt}
+generator_ckpt_field: generator_ema
+require_complete_prospective_checkpoint: true
+generator_fsdp_wrap_strategy: size
+generator_fsdp_min_num_params: 40000000
+generator_backward_prefetch: post
+real_score_fsdp_wrap_strategy: size
+real_score_cpu_offload: false
+fake_score_fsdp_wrap_strategy: size
+fake_score_cpu_offload: false
+real_name: Wan2.1-T2V-14B
+text_encoder_fsdp_wrap_strategy: size
+text_encoder_cpu_offload: true
+vae_cpu_offload: false
+denoising_step_list: [1000, 800, 600, 400, 200]
+warp_denoising_step: true
+ts_schedule: false
+num_train_timestep: 1000
+timestep_shift: 5.0
+guidance_scale: 3.0
+denoising_loss_type: flow
+mixed_precision: true
+seed: 20260720
+require_fixed_seed: true
+sharding_strategy: full
+require_full_shard: true
+expected_world_size: 8
+require_flash_attention: true
+lr: 1.5e-6
+lr_critic: 4.0e-7
+beta1: 0.0
+beta2: 0.999
+beta1_critic: 0.0
+beta2_critic: 0.999
+data_path: ${oc.env:PF_TRAIN_PROMPTS,data/train_prompts.txt}
+precomputed_text_embeddings: ${oc.env:PF_EMBEDDINGS_DIR,data/embeddings}
+batch_size: 1
+dataloader_num_workers: 0
+ema_weight: 0.99
+ema_start_step: 0
+total_batch_size: 8
+log_iters: 100
+max_steps: 1000
+negative_prompt: '色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走'
+dfake_gen_update_ratio: 5
+image_or_video_shape: [1, 21, 16, 60, 104]
+distribution_loss: dmd
+trainer: score_distillation
+gradient_checkpointing: true
+num_frame_per_block: 3
+num_training_frames: 27
+load_raw_video: false
+prospective_enabled: true
+prospective_feature_weight: 1.0
+prospective_flow_weight: 0.1
+prospective_loss_weight: 0.1
+prospective_anchor_policy: tail
+m1_loss_weight: 0.1
+m1_candidate_alignment_beta: 0.05
+m1_role: M1_k2_learned_verifier
+m1_threshold_status: post_training
+model_kwargs:
+  timestep_shift: 5.0
+  prospective_enabled: true
+  prospective_draft_architecture: parallel_heads
+  prospective_num_heads: 12
+  prospective_mlp_ratio: 2.0
+  prospective_future_horizons: 2
+  prospective_num_frames_per_chunk: 3
+  m1_method: M1
+  m1_delta: 0.12
+  m1_candidate_seed: 20260816

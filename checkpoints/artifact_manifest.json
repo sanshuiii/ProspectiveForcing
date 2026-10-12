@@ -1,0 +1,26 @@
+{
+  "schema_version": "prospective_forcing_artifacts_v1",
+  "artifacts": [
+    {
+      "name": "causal_model_initialization",
+      "path": "checkpoints/base/causal_cd.pt",
+      "required_for": ["stage1_training"],
+      "url": "https://huggingface.co/zhuhz22/Causal-Forcing/blob/a6a8f0e3bbdea1044fc6fef09c9cb9f648bf1bc3/chunkwise/causal_cd.pt",
+      "sha256": "3fff3d62a8245ff4693fbaa91ce6f2bcf6848c94965b84d16d91f3e7664f763b"
+    },
+    {
+      "name": "prospective_forcing_stage1",
+      "path": "checkpoints/stage1/prospective_forcing_stage1.pt",
+      "required_for": ["stage2_training", "b0_inference", "a1_inference"],
+      "url": null,
+      "sha256": null
+    },
+    {
+      "name": "prospective_forcing_stage2_m1",
+      "path": "checkpoints/stage2/prospective_forcing_stage2_m1.pt",
+      "required_for": ["m1_inference"],
+      "url": null,
+      "sha256": null
+    }
+  ]
+}

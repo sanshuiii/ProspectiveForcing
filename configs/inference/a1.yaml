@@ -1,0 +1,22 @@
+# A1: Stage 1 EMA, one q1 draft committed with last-chunk rolling stitch.
+real_name: Wan2.1-T2V-14B
+denoising_step_list: [1000, 800, 600, 400, 200]
+warp_denoising_step: true
+ts_schedule: false
+num_train_timestep: 1000
+timestep_shift: 5.0
+guidance_scale: 3.0
+mixed_precision: true
+seed: 20260720
+num_frame_per_block: 3
+num_training_frames: 27
+prospective_enabled: true
+prospective_anchor_policy: tail
+model_kwargs:
+  timestep_shift: 5.0
+  prospective_enabled: true
+  prospective_draft_architecture: parallel_heads
+  prospective_num_heads: 12
+  prospective_mlp_ratio: 2.0
+  prospective_future_horizons: 2
+  prospective_num_frames_per_chunk: 3

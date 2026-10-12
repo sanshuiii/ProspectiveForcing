@@ -1,0 +1,7 @@
+cff-version: 1.2.0
+message: "If you use this software, cite the accompanying Prospective Forcing paper."
+title: "Prospective Forcing"
+type: software
+version: 0.1.0
+authors:
+  - name: "Prospective Forcing Contributors"
