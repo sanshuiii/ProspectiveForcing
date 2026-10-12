@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prospective Forcing</title>
+  <meta name="description" content="Prospective Forcing: Learning to Look Ahead for Autoregressive Long Video Diffusion.">
+  <meta property="og:title" content="Prospective Forcing: Learning to Look Ahead for Autoregressive Long Video Diffusion">
+  <meta property="og:description" content="A multi-head prediction framework that injects long-range predictive signals into autoregressive video generators.">
+  <meta property="og:image" content="static/images/pv_poster.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg-alt: #f5f6f8;
+      --ink: #15171c;
+      --ink-2: #4a505c;
+      --ink-3: #7a808c;
+      --line: #e3e5ea;
+      --accent: #2a7fa8;
+      --accent-ink: #ffffff;
+      --ours: #3f8f3a;
+      --card: #ffffff;
+      --shadow: 0 12px 40px rgba(20, 24, 33, 0.12);
+      --code-bg: #f1f2f5;
+      --radius: 14px;
+      --serif: "Source Serif 4", Charter, Georgia, serif;
+      --sans: "Inter", -apple-system, "Segoe UI", Roboto, sans-serif;
+      --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0c0e14; --bg-alt: #12151d; --ink: #eceef2; --ink-2: #b5bac6; --ink-3: #868c99;
+        --line: #252a35; --accent: #58c4dd; --accent-ink: #0c0e14; --ours: #83c167; --card: #12151d;
+        --shadow: 0 12px 40px rgba(0, 0, 0, 0.5); --code-bg: #161a23;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #0c0e14; --bg-alt: #12151d; --ink: #eceef2; --ink-2: #b5bac6; --ink-3: #868c99;
+      --line: #252a35; --accent: #58c4dd; --accent-ink: #0c0e14; --ours: #83c167; --card: #12151d;
+      --shadow: 0 12px 40px rgba(0, 0, 0, 0.5); --code-bg: #161a23;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--bg); color: var(--ink);
+      font-family: var(--sans); font-size: 17px; line-height: 1.65;
+      -webkit-font-smoothing: antialiased; overflow-x: hidden;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+    .wide { max-width: 1440px; margin: 0 auto; padding: 0 16px; }
+    section { padding: 72px 0; }
+    section.alt { background: var(--bg-alt); }
+    h2 {
+      font-family: var(--serif); font-weight: 700; font-size: clamp(26px, 3.2vw, 38px);
+      line-height: 1.2; text-align: center; margin: 0 0 10px; letter-spacing: -0.01em;
+    }
+    .lede { text-align: center; color: var(--ink-2); margin: 0 auto 36px; max-width: 760px; }
+
+    /* ---------- hero */
+    header.hero { padding: 72px 0 40px; text-align: center; }
+    .title {
+      font-family: var(--serif); font-weight: 700; font-size: clamp(40px, 6.4vw, 76px);
+      line-height: 1.05; margin: 0; letter-spacing: -0.015em;
+    }
+    .subtitle {
+      font-family: var(--serif); font-size: clamp(19px, 2.3vw, 27px); color: var(--ink-2);
+      margin: 14px auto 0; max-width: 900px; line-height: 1.35;
+    }
+    .authors {
+      font-family: var(--serif); font-size: clamp(17px, 1.7vw, 20px); margin: 30px auto 0;
+      max-width: 940px; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 22px;
+    }
+    .authors span { white-space: nowrap; }
+    .authors .br { flex-basis: 100%; height: 0; }
+    sup { font-size: 0.68em; line-height: 0; }
+    .affils { color: var(--ink-2); font-size: 15px; margin-top: 12px; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 20px; }
+    .notes { color: var(--ink-3); font-size: 13px; margin-top: 6px; }
+    .buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 28px 0 0; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; border-radius: 999px;
+      background: var(--ink); color: var(--bg); font-weight: 500; font-size: 15px; line-height: 1;
+      transition: transform .15s ease, opacity .15s ease;
+    }
+    .btn:hover { text-decoration: none; transform: translateY(-1px); opacity: .9; }
+    .btn.disabled { opacity: .4; cursor: default; }
+    .btn.disabled:hover { transform: none; opacity: .4; }
+    .btn svg { width: 16px; height: 16px; fill: currentColor; }
+    .pv { margin: 40px auto 0; max-width: 1120px; }
+    .pv video { width: 100%; display: block; border-radius: var(--radius); box-shadow: var(--shadow); background: #000; aspect-ratio: 16 / 9; }
+
+    /* ---------- 5-minute videos: full-bleed row */
+    .long-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 10px; }
+    .long-item { position: relative; }
+    .long-item video { width: 100%; display: block; border-radius: 10px; background: #000; aspect-ratio: 832 / 480; }
+    .badge {
+      position: absolute; top: 12px; left: 12px; padding: 4px 10px; border-radius: 6px;
+      background: rgba(12, 14, 20, .72); color: #fff; font: 500 14px/1.4 var(--mono); pointer-events: none;
+    }
+    .caption { color: var(--ink-2); font-family: var(--serif); font-style: italic; font-size: 16px; text-align: center; margin: 10px 8px 0; }
+
+    /* ---------- 30-second grid */
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .card video { width: 100%; display: block; border-radius: 10px; background: #000; aspect-ratio: 832 / 480; }
+    .card p {
+      margin: 8px 2px 0; color: var(--ink-2); font-family: var(--serif); font-style: italic; font-size: 15px; line-height: 1.45;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+
+    /* ---------- abstract + figure */
+    .abstract { font-size: 17.5px; color: var(--ink); text-align: justify; hyphens: auto; max-width: 900px; margin: 0 auto; }
+    figure { margin: 48px 0 0; }
+    figure img { width: 100%; display: block; border-radius: 10px; background: #fff; }
+    figcaption { color: var(--ink-2); font-size: 15px; margin-top: 14px; line-height: 1.6; }
+    .math { font-family: var(--serif); font-style: italic; white-space: nowrap; }
+    .math b { font-style: normal; }
+
+    /* ---------- bibtex */
+    .bib { position: relative; }
+    pre {
+      background: var(--code-bg); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px;
+      overflow-x: auto; font: 14px/1.6 var(--mono); color: var(--ink); margin: 0;
+    }
+    .copy {
+      position: absolute; top: 10px; right: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink-2);
+      border-radius: 8px; padding: 6px 12px; font: 500 13px var(--sans); cursor: pointer;
+    }
+    .copy:hover { color: var(--ink); }
+    footer { color: var(--ink-3); font-size: 13px; text-align: center; padding: 36px 16px 48px; }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 720px) {
+      .authors .br { display: none; }
+      section { padding: 52px 0; }
+      .long-row { grid-template-columns: 1fr; gap: 26px; padding: 0 16px; }
+      .grid { grid-template-columns: 1fr; }
+      .abstract { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================ 1. title + PV -->
+<header class="hero">
+  <div class="wrap">
+    <h1 class="title">Prospective Forcing</h1>
+    <p class="subtitle">Learning to Look Ahead for Autoregressive Long Video Diffusion</p>
+
+    <div class="authors">
+      <span>Yifan Shen<sup>1,3†</sup></span>
+      <span>Yewei Xia<sup>1</sup></span>
+      <span>Gongxu Luo<sup>1,3</sup></span>
+      <span>Peiyuan Zhu<sup>1</sup></span>
+      <span>Boyang Sun<sup>1</sup></span>
+      <i class="br" aria-hidden="true"></i>
+      <span>Zhenhao Chen<sup>1</sup></span>
+      <span>Guangyi Liu<sup>1,3</sup></span>
+      <span>Guangyi Chen<sup>1,2*</sup></span>
+      <span>Kun Zhang<sup>2,1</sup></span>
+    </div>
+    <div class="affils">
+      <span><sup>1</sup>Mohamed bin Zayed University of AI</span>
+      <span><sup>2</sup>Carnegie Mellon University</span>
+      <span><sup>3</sup>Institute of Foundation Models</span>
+    </div>
+    <div class="notes"><sup>†</sup>Work done during an internship at the Institute of Foundation Models. &nbsp; <sup>*</sup>Corresponding author.</div>
+
+    <!-- Paper / arXiv links: add href once the arXiv version is public -->
+    <div class="buttons">
+      <a class="btn disabled" aria-disabled="true" title="Coming soon" aria-label="Paper PDF (coming soon)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v15H6V2zm8 1.5V8h4.5L14 3.5zM8 12h8v1.5H8V12zm0 3h8v1.5H8V15zm0 3h5v1.5H8V18z"/></svg>Paper</a>
+      <a class="btn disabled" aria-disabled="true" title="Coming soon" aria-label="arXiv (coming soon)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h4l4 6 4-6h4l-6 8.5L20 20h-4l-4-5.5L8 20H4l6-7.5L4 4z"/></svg>arXiv</a>
+      <a class="btn" href="https://github.com/sanshuiii/ProspectiveForcing" aria-label="Code on GitHub">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.68 0-1.26.45-2.28 1.19-3.08-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.82 1.19 3.08 0 4.41-2.7 5.38-5.27 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>Code</a>
+      <a class="btn" href="#bibtex">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18l-7-4-7 4V3z"/></svg>BibTeX</a>
+    </div>
+
+    <div class="pv">
+      <video controls preload="metadata" playsinline poster="static/images/pv_poster.jpg">
+        <source src="static/videos/pv.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+</header>
+
+<!-- ============================================================ 2. 5-minute videos -->
+<section class="alt" id="long">
+  <div class="wrap">
+    <h2>Unlocking Long-Horizon Video Generation</h2>
+    <p class="lede">Two 5-minute videos, each generated autoregressively from a single text prompt.</p>
+  </div>
+  <div class="long-row">
+    <div class="long-item">
+      <video class="auto" muted loop playsinline preload="metadata" poster="static/images/long_tokyo_poster.jpg" controls>
+        <source src="static/videos/long_tokyo.mp4" type="video/mp4">
+      </video>
+      <span class="badge" data-clock>00:00 / 05:00</span>
+      <p class="caption">“A stylish woman walks down a Tokyo street filled with warm glowing neon and animated city signage.”</p>
+    </div>
+    <div class="long-item">
+      <video class="auto" muted loop playsinline preload="metadata" poster="static/images/long_compliment_poster.jpg" controls>
+        <source src="static/videos/long_compliment.mp4" type="video/mp4">
+      </video>
+      <span class="badge" data-clock>00:00 / 05:00</span>
+      <p class="caption">“A man's face lit up with happiness as he received a heartfelt compliment.”</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 3. 30-second videos -->
+<section id="short">
+  <div class="wide">
+    <h2>Enhancing Temporal Consistency and Motion Dynamics</h2>
+    <p class="lede">30-second videos generated by Prospective Forcing.</p>
+    <div class="grid">
+      <div class="card">
+        <video class="auto" muted loop playsinline preload="none" poster="static/images/short_origami_dragon_poster.jpg"><source src="static/videos/short_origami_dragon.mp4" type="video/mp4"></video>
+        <p title="A paper origami dragon riding a boat in waves. Realistic style.">“A paper origami dragon riding a boat in waves. Realistic style.”</p>
+      </div>
+      <div class="card">
+        <video class="auto" muted loop playsinline preload="none" poster="static/images/short_skeleton_poster.jpg"><source src="static/videos/short_skeleton.mp4" type="video/mp4"></video>
+        <p title="A skeleton wearing a flower hat and sunglasses dances in the wild at sunset.">“A skeleton wearing a flower hat and sunglasses dances in the wild at sunset.”</p>
+      </div>
+      <div class="card">
+        <video class="auto" muted loop playsinline preload="none" poster="static/images/short_rally_car_poster.jpg"><source src="static/videos/short_rally_car.mp4" type="video/mp4"></video>
+        <p title="A rally car taking a fast turn on a track.">“A rally car taking a fast turn on a track.”</p>
+      </div>
+      <div class="card">
+        <video class="auto" muted loop playsinline preload="none" poster="static/images/short_coral_reef_poster.jpg"><source src="static/videos/short_coral_reef.mp4" type="video/mp4"></video>
+        <p title="A gorgeously rendered papercraft world of a coral reef, rife with colorful fish and sea creatures.">“A gorgeously rendered papercraft world of a coral reef, rife with colorful fish and sea creatures.”</p>
+      </div>
+      <div class="card">
+        <video class="auto" muted loop playsinline preload="none" poster="static/images/short_kangaroo_poster.jpg"><source src="static/videos/short_kangaroo.mp4" type="video/mp4"></video>
+        <p title="An adorable kangaroo wearing purple overalls and cowboy boots taking a pleasant stroll in Mumbai India during a colorful festival.">“An adorable kangaroo wearing purple overalls and cowboy boots taking a pleasant stroll in Mumbai India during a colorful festival.”</p>
+      </div>
+      <div class="card">
+        <video class="auto" muted loop playsinline preload="none" poster="static/images/short_bear_poster.jpg"><source src="static/videos/short_bear.mp4" type="video/mp4"></video>
+        <p title="A bear wearing a superhero cape, flying through the sky over a bustling city.">“A bear wearing a superhero cape, flying through the sky over a bustling city.”</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 4. abstract + method figure -->
+<section class="alt" id="abstract">
+  <div class="wrap">
+    <h2>Abstract</h2>
+    <p class="abstract">
+      Autoregressive video generators synthesize long videos through chunk-wise rollouts, yet they are typically trained to predict
+      only the immediate future. This limited prediction horizon makes it challenging to maintain video quality over extended
+      rollouts. To address this problem, we introduce Prospective Forcing, a multi-head prediction framework that injects long-range
+      predictive signals into autoregressive video representations. Built on a rolling-window generator, Prospective Forcing attaches
+      lightweight, offset-specific heads that share the same conditioning information and independently predict chunks at different
+      future temporal offsets. By extending supervision beyond the next chunk, these heads encourage the shared history representation
+      to retain information useful for longer-horizon prediction, supporting temporally consistent generation. At inference time, we
+      accelerate sampling by using accepted future-chunk predictions to skip full-window backbone executions. We equip the head with
+      learnable embeddings to generate multiple candidates for the next chunk, and a learned verifier either selects a candidate or
+      rejects all and falls back to standard autoregressive generation.
+    </p>
+    <figure>
+      <picture>
+        <source srcset="static/images/method.webp" type="image/webp">
+        <img src="static/images/method.jpg" alt="Overview of Prospective Forcing: a rolling window of chunks, two future prediction heads, and a candidate verifier." loading="lazy">
+      </picture>
+    </figure>
+  </div>
+</section>
+
+<!-- ============================================================ 5. BibTeX -->
+<section id="bibtex">
+  <div class="wrap">
+    <h2>BibTeX</h2>
+    <div class="bib">
+      <button class="copy" type="button" data-copy="#bib-src">Copy</button>
+<pre id="bib-src">@article{shen2026prospective,
+  title   = {Prospective Forcing: Learning to Look Ahead for Autoregressive Long Video Diffusion},
+  author  = {Shen, Yifan and Xia, Yewei and Luo, Gongxu and Zhu, Peiyuan and Sun, Boyang and
+             Chen, Zhenhao and Liu, Guangyi and Chen, Guangyi and Zhang, Kun},
+  journal = {arXiv preprint},
+  year    = {2026}
+}</pre>
+    </div>
+  </div>
+</section>
+
+<footer>Prospective Forcing · 2026</footer>
+
+<script>
+  // Play muted videos only while they are on screen (saves bandwidth and CPU on a page with many clips).
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      const v = e.target;
+      if (e.isIntersecting) {
+        if (v.preload === "none") v.preload = "auto";
+        const p = v.play(); if (p && p.catch) p.catch(() => {});
+      } else {
+        v.pause();
+      }
+    }
+  }, { threshold: 0.35 });
+  document.querySelectorAll("video.auto").forEach((v) => io.observe(v));
+
+  // Elapsed-time badges on the 5-minute videos.
+  const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+  document.querySelectorAll(".long-item").forEach((item) => {
+    const v = item.querySelector("video"), b = item.querySelector("[data-clock]");
+    v.addEventListener("timeupdate", () => { b.textContent = `${fmt(v.currentTime)} / ${fmt(v.duration || 300)}`; });
+  });
+
+  // Copy BibTeX.
+  document.querySelectorAll("[data-copy]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const text = document.querySelector(btn.dataset.copy).textContent;
+      try { await navigator.clipboard.writeText(text); btn.textContent = "Copied"; }
+      catch { btn.textContent = "Select & copy"; }
+      setTimeout(() => (btn.textContent = "Copy"), 1600);
+    });
+  });
+</script>
+</body>
+</html>
