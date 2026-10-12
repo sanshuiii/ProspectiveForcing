@@ -62,8 +62,8 @@ python scripts/utilities/verify_environment.py
 ```
 
 2. Download the public base models (Wan2.1-T2V-1.3B / 14B and the causal-model initialization) to their default
-   locations, then place the Prospective Forcing checkpoints in `checkpoints/stage1/` and `checkpoints/stage2/`
-   (see [`checkpoints/README.md`](checkpoints/README.md); release of our weights is coming soon, or train them with
+   locations, then place the Prospective Forcing checkpoint in `checkpoints/stage2/`
+   (see [`checkpoints/README.md`](checkpoints/README.md); release of our weights is coming soon, or train it with
    the two-stage recipe in [`docs/USAGE.md`](docs/USAGE.md)):
 
 ```bash
@@ -71,13 +71,11 @@ pip install -U "huggingface_hub[cli]"   # provides the `hf` command used by the 
 bash scripts/utilities/download_public_artifacts.sh
 ```
 
-3. Generate videos, one prompt per line. B0 and A1 use the Stage 1 checkpoint; M1 (two learned candidates plus a
-   verifier) uses the Stage 2 checkpoint. Eight GPUs are used by default; set `PF_GPU_IDS=0` for a single GPU.
+3. Generate videos from a text file with one prompt per line. Eight GPUs are used by default; set `PF_GPU_IDS=0`
+   for a single GPU.
 
 ```bash
-bash scripts/inference/infer_m1.sh examples/prompts.txt outputs/m1
-bash scripts/inference/infer_a1.sh examples/prompts.txt outputs/a1
-bash scripts/inference/infer_b0.sh examples/prompts.txt outputs/b0
+bash scripts/inference/infer_m1.sh examples/prompts.txt outputs/
 ```
 
 Training, configuration, and checkpoint details are in [`docs/USAGE.md`](docs/USAGE.md) and [`docs/`](docs/).
