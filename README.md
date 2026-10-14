@@ -39,7 +39,7 @@
 <p>
   <a href="https://sanshuiii.github.io/ProspectiveForcing/"><strong>Project Page</strong></a>
   &nbsp;&nbsp;|&nbsp;&nbsp;
-  <strong>arXiv</strong> (coming soon)
+  <a href="https://arxiv.org/abs/2610.14654"><strong>arXiv</strong></a>
 </p>
 
 </div>

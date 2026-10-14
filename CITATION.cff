@@ -1,7 +1,35 @@
 cff-version: 1.2.0
-message: "If you use this software, cite the accompanying Prospective Forcing paper."
+message: "If you use this software, please cite the Prospective Forcing paper."
 title: "Prospective Forcing"
 type: software
 version: 0.1.0
+url: "https://sanshuiii.github.io/ProspectiveForcing/"
+repository-code: "https://github.com/sanshuiii/ProspectiveForcing"
 authors:
-  - name: "Prospective Forcing Contributors"
+  - {family-names: Shen, given-names: Yifan}
+  - {family-names: Xia, given-names: Yewei}
+  - {family-names: Luo, given-names: Gongxu}
+  - {family-names: Zhu, given-names: Peiyuan}
+  - {family-names: Sun, given-names: Boyang}
+  - {family-names: Chen, given-names: Zhenhao}
+  - {family-names: Liu, given-names: Guangyi}
+  - {family-names: Chen, given-names: Guangyi}
+  - {family-names: Zhang, given-names: Kun}
+preferred-citation:
+  type: article
+  title: "Prospective Forcing: Learning to Look Ahead for Autoregressive Long Video Diffusion"
+  authors:
+    - {family-names: Shen, given-names: Yifan}
+    - {family-names: Xia, given-names: Yewei}
+    - {family-names: Luo, given-names: Gongxu}
+    - {family-names: Zhu, given-names: Peiyuan}
+    - {family-names: Sun, given-names: Boyang}
+    - {family-names: Chen, given-names: Zhenhao}
+    - {family-names: Liu, given-names: Guangyi}
+    - {family-names: Chen, given-names: Guangyi}
+    - {family-names: Zhang, given-names: Kun}
+  journal: "arXiv preprint arXiv:2610.14654"
+  year: 2026
+  identifiers:
+    - {type: other, value: "arXiv:2610.14654", description: "arXiv identifier"}
+  url: "https://arxiv.org/abs/2610.14654"
